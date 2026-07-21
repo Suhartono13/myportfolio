@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Portfolio</title>
+    
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Tailwind slate-900 */
+            color: #f8fafc; /* Tailwind slate-50 */
+            overflow-x: hidden;
+        }
+
+        /* Carousel specific styles */
+        .carousel-container {
+            overflow: hidden;
+            position: relative;
+            border-radius: 0.75rem;
+            touch-action: pan-y;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.3s ease-out;
+            will-change: transform;
+            cursor: grab;
+        }
+
+        .carousel-track:active {
+            cursor: grabbing;
+        }
+
+        .carousel-slide {
+            flex: 0 0 100%;
+            width: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+        }
+
+        .carousel-slide img, 
+        .carousel-slide video {
+            max-height: 60vh;
+            width: auto;
+            max-width: 100%;
+            object-fit: contain;
+        }
+
+        /* Glassmorphism effects */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-glass {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569; 
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.03); }
+        }
+        .glow-pulse {
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-blue-500 selection:text-white pb-20">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-40 nav-glass top-0 transition-all duration-300">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <a href="#" class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-teal-300 to-emerald-400" id="nav-name">
+                        Portfolio
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4 sm:space-x-6">
+                    <a href="#about" class="hover:text-blue-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">About</a>
+                    <a href="#projects" class="hover:text-blue-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">Projects</a>
+                    <a href="#contact" class="hover:text-blue-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">Contact</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main id="app-root" class="pt-20">
+        <!-- Content gets injected here -->
+    </main>
+
+    <script>
+        /**
+         * ======================================================================
+         * ✏️ EASY ASSET & CONTENT CONFIGURATION
+         * Place your photos and videos inside an 'assets' folder in the same 
+         * directory as this index.html file!
+         * ======================================================================
+         */
+        const portfolioData = {
+            // 📸 PROFILE & ABOUT ASSETS (Saved in assets/ folder)
+            profile: {
+                name: "Suhartono",
+                title: "Data Analyst | KPI Dashboard | Google sheet | Excel | Google Analytics",
+                bio: "I specialize in building business dashboards, spreadsheet systems, KPI reports, estimation tools, financial planning models, and custom trackers using Excel andGoogle Sheets",
+                
+                // Save your profile image inside the assets folder: assets/profile.jpg
+                photoUrl: "assets/profile.jpg", 
+                
+                // 🛠️ 6 CORE SKILLS
+                skills: [
+                    "Microsoft Excel",
+                    "Visual Basic for Applications",
+                    "Data Visualization",
+                    "Data Cleaning and Formatting",
+                    "Data Modeling",
+                    "Excel Macros"
+                ],
+                
+                location: "Jakarta, Indonesia (Available Remote World-Wide)",
+                availability: "Open for freelance projects, contract roles, and full-time positions."
+            },
+
+            // 🔗 SOCIAL & CONTACT LINKS (WhatsApp, LinkedIn, Email)
+            socials: {
+                whatsapp: "https://wa.me/6285884012408", // e.g. https://wa.me/15551234567
+                linkedin: "https://linkedin.com/in/suhartono13",
+                email: "suharuutono13@gmail.com"
+            },
+
+            // 🎥 PROJECT PHOTOS & VIDEOS ASSETS (Saved in assets/ folder)
+            projects: [
+                {
+                    id: "proj-1",
+                    title: "F&B Executive BI Dashboard & Financial Analytics Model",
+                    description: "This project transforms 8,400+ raw itemized ERP transaction logs and fragmented general ledger expense sheets from a multi-outlet Food & Beverage enterprise into a presentation-ready executive business intelligence layout. Operating across 6 distinct retail environments (Flagships, Mall outlets, Standalone locations, and Ruko spaces), the organization lacked a singular platform to dissect store-level P&L variations, dynamic item margin behaviors, and operational cost inefficiencies.",
+                    tags: ["Data Visualization", "Data Modeling", "Visual Basic for Applications"],
+                    media: [
+                        { type: 'image', url: 'assets/project1-photo1.jpg' },
+                        { type: 'image', url: 'assets/project1-photo2.jpg' },
+                        { type: 'video', url: 'assets/project1-video.mp4' } 
+                    ]
+                },
+                {
+                    id: "proj-2",
+                    title: "Project Management",
+                    description: "An interactive, professional Microsoft Excel project management dashboard designed to clean, track, filter, and analyze task statuses in real-time. This tool simplifies resource allocation and timeline management across cross-functional teams.",
+                    tags: ["Project Report", "Project Analysis", "Project Planning", "Project Management"],
+                    media: [
+                        { type: 'video', url: 'assets/project2-video.mp4' },
+                        { type: 'image', url: 'assets/project2-photo1.jpg' },
+                        { type: 'image', url: 'assets/project2-photo2.jpg' }
+                    ]
+                }
+            ]
+        };
+
+        /**
+         * ======================================================================
+         * ⚙️ APPLICATION LOGIC & RENDERING
+         * ======================================================================
+         */
+        const appRoot = document.getElementById('app-root');
+        
+        const iconMap = {
+            whatsapp: "fa-brands fa-whatsapp",
+            linkedin: "fa-brands fa-linkedin-in",
+            email: "fa-solid fa-envelope"
+        };
+
+        function renderHero() {
+            document.getElementById('nav-name').innerText = portfolioData.profile.name;
+
+            let socialLinksHTML = '';
+            for (const [network, url] of Object.entries(portfolioData.socials)) {
+                if (url) {
+                    socialLinksHTML += `
+                        <a href="${url}" target="_blank" rel="noopener noreferrer" 
+                           class="w-12 h-12 flex items-center justify-center rounded-full glass-panel hover:bg-white/20 hover:scale-110 transition-all duration-300 text-xl shadow-lg">
+                            <i class="${iconMap[network] || 'fa-solid fa-link'}"></i>
+                        </a>
+                    `;
+                }
+            }
+
+            const skillsHTML = portfolioData.profile.skills.map(skill => 
+                `<span class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800/80 border border-teal-500/30 text-teal-300 flex items-center gap-1.5 shadow-sm">
+                    <span class="w-1.5 h-1.5 rounded-full bg-teal-400"></span> ${skill}
+                 </span>`
+            ).join('');
+
+            return `
+                <section id="about" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 flex flex-col-reverse lg:flex-row items-center gap-12">
+                    <div class="flex-1 text-center lg:text-left">
+                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-4">
+                            Hi, I'm <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-teal-300 to-emerald-400">${portfolioData.profile.name}</span>
+                        </h1>
+                        <h2 class="text-xl sm:text-2xl text-slate-400 mb-6 font-light">
+                            ${portfolioData.profile.title}
+                        </h2>
+                        <p class="text-lg text-slate-300 mb-6 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                            ${portfolioData.profile.bio}
+                        </p>
+
+                        <!-- 6 Core Skills Badges -->
+                        <div class="mb-8">
+                            <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3 text-center lg:text-left">Core Expertise</h3>
+                            <div class="flex flex-wrap justify-center lg:justify-start gap-2">
+                                ${skillsHTML}
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap justify-center lg:justify-start gap-4">
+                            ${socialLinksHTML}
+                        </div>
+                    </div>
+
+                    <div class="flex-1 flex justify-center lg:justify-end">
+                        <div class="relative w-64 h-64 sm:w-80 sm:h-80">
+                            <!-- Gradient decorative ring -->
+                            <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-blue-500 via-teal-400 to-emerald-500 blur-[2px] opacity-70 animate-pulse"></div>
+                            <!-- Profile Image with automatic fallback -->
+                            <img src="${portfolioData.profile.photoUrl}" 
+                                 onerror="this.onerror=null; this.src='https://placehold.co/400x400/1e293b/38bdf8?text=Add+assets/profile.jpg';" 
+                                 alt="${portfolioData.profile.name}" 
+                                 class="absolute inset-1 w-[calc(100%-8px)] h-[calc(100%-8px)] object-cover rounded-full border-4 border-slate-900 shadow-2xl z-10">
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+
+        function renderProjects() {
+            let projectsHTML = `
+                <section id="projects" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                    <div class="mb-16 text-center">
+                        <h2 class="text-3xl sm:text-4xl font-bold inline-block relative">
+                            Featured Projects
+                            <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-blue-400 via-teal-300 to-emerald-400 rounded-full"></div>
+                        </h2>
+                    </div>
+                    <div class="space-y-24">
+            `;
+
+            portfolioData.projects.forEach((project, index) => {
+                const tagsHTML = project.tags.map(tag => 
+                    `<span class="px-3 py-1 text-xs rounded-full glass-panel text-teal-300 border border-teal-500/20">${tag}</span>`
+                ).join('');
+
+                const slidesHTML = project.media.map((media, mIndex) => {
+                    const fallbackName = media.url.split('/').pop() || 'file';
+                    if (media.type === 'image') {
+                        return `
+                            <div class="carousel-slide">
+                                <img src="${media.url}" 
+                                     onerror="this.onerror=null; this.src='https://placehold.co/1280x720/0f172a/38bdf8?text=Add+${media.url}';" 
+                                     alt="Project Media ${mIndex + 1}" 
+                                     class="rounded-lg shadow-lg pointer-events-none" loading="lazy">
+                            </div>
+                        `;
+                    } else if (media.type === 'video') {
+                        return `
+                            <div class="carousel-slide">
+                                <video src="${media.url}" controls preload="metadata" 
+                                       class="rounded-lg shadow-lg max-w-full outline-none">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                        `;
+                    }
+                }).join('');
+
+                const isEven = index % 2 === 0;
+                const layoutClass = isEven ? 'lg:flex-row' : 'lg:flex-row-reverse';
+
+                projectsHTML += `
+                    <div class="flex flex-col ${layoutClass} gap-8 lg:gap-12 items-center">
+                        
+                        <!-- Project Info -->
+                        <div class="flex-1 w-full text-center lg:text-left">
+                            <h3 class="text-2xl sm:text-3xl font-bold mb-3">${project.title}</h3>
+                            <p class="text-slate-300 text-base mb-6 leading-relaxed">${project.description}</p>
+                            
+                            <div class="flex flex-wrap justify-center lg:justify-start gap-2">
+                                ${tagsHTML}
+                            </div>
+                        </div>
+
+                        <!-- Project Carousel -->
+                        <div class="flex-[1.5] w-full">
+                            <div class="glass-panel p-2 sm:p-4 rounded-xl relative group">
+                                <div class="carousel-container" id="carousel-${project.id}">
+                                    <div class="carousel-track" id="track-${project.id}">
+                                        ${slidesHTML}
+                                    </div>
+                                </div>
+                                
+                                <!-- Carousel Controls -->
+                                <button onclick="moveCarousel('${project.id}', -1)" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-30 hover:bg-teal-600 z-10" aria-label="Previous slide">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </button>
+                                <button onclick="moveCarousel('${project.id}', 1)" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-30 hover:bg-teal-600 z-10" aria-label="Next slide">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                                
+                                <!-- Dots Indicator -->
+                                <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10" id="dots-${project.id}">
+                                    ${project.media.map((_, i) => `
+                                        <button onclick="goToSlide('${project.id}', ${i})" class="w-2.5 h-2.5 rounded-full transition-all duration-300 ${i === 0 ? 'bg-teal-400 scale-125' : 'bg-white/50 hover:bg-white/80'}"></button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            <p class="text-center text-xs text-slate-500 mt-3"><i class="fa-solid fa-hand-pointer mr-1.5"></i>Swipe or click arrows to switch photos & view videos full screen</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            projectsHTML += `
+                    </div>
+                </section>
+            `;
+            return projectsHTML;
+        }
+
+        function renderFooter() {
+            return `
+                <footer id="contact" class="border-t border-white/10 mt-20 py-16 bg-slate-950/50">
+                    <div class="max-w-6xl mx-auto px-4 text-center">
+                        <h2 class="text-3xl font-bold mb-4">Get In Touch</h2>
+                        <p class="text-slate-400 mb-10 max-w-xl mx-auto text-sm sm:text-base">Have a project in mind, need creative video production, or looking to collaborate? Reach out directly via WhatsApp, LinkedIn, or Email!</p>
+                        
+                        <!-- Contact Action Cards with WhatsApp, LinkedIn, Email Icons -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto mb-12">
+                            <!-- WhatsApp -->
+                            <a href="${portfolioData.socials.whatsapp}" target="_blank" rel="noopener noreferrer" 
+                               class="glass-panel p-6 rounded-2xl hover:border-emerald-500/50 hover:bg-emerald-500/10 transition-all duration-300 flex flex-col items-center gap-3 group">
+                                <div class="w-14 h-14 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                                    <i class="fa-brands fa-whatsapp"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-white text-base">WhatsApp</h4>
+                                    <p class="text-xs text-slate-400 mt-1">Direct Chat & Call</p>
+                                </div>
+                            </a>
+
+                            <!-- LinkedIn -->
+                            <a href="${portfolioData.socials.linkedin}" target="_blank" rel="noopener noreferrer" 
+                               class="glass-panel p-6 rounded-2xl hover:border-blue-500/50 hover:bg-blue-500/10 transition-all duration-300 flex flex-col items-center gap-3 group">
+                                <div class="w-14 h-14 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                                    <i class="fa-brands fa-linkedin-in"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-white text-base">LinkedIn</h4>
+                                    <p class="text-xs text-slate-400 mt-1">Connect Professionally</p>
+                                </div>
+                            </a>
+
+                            <!-- Email -->
+                            <a href="${portfolioData.socials.email}" 
+                               class="glass-panel p-6 rounded-2xl hover:border-teal-500/50 hover:bg-teal-500/10 transition-all duration-300 flex flex-col items-center gap-3 group">
+                                <div class="w-14 h-14 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-envelope"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-white text-base">Email</h4>
+                                    <p class="text-xs text-slate-400 mt-1">Send a Message</p>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="text-slate-500 text-xs">
+                            &copy; ${new Date().getFullYear()} ${portfolioData.profile.name}. All rights reserved.
+                        </div>
+                    </div>
+                </footer>
+            `;
+        }
+
+        // Assemble App
+        appRoot.innerHTML = renderHero() + renderProjects() + renderFooter();
+
+        /**
+         * ======================================================================
+         * 🎠 CAROUSEL INTERACTION LOGIC
+         * ======================================================================
+         */
+        const carousels = {};
+
+        portfolioData.projects.forEach(proj => {
+            carousels[proj.id] = {
+                currentIndex: 0,
+                maxIndex: proj.media.length - 1,
+                track: document.getElementById(`track-${proj.id}`),
+                dotsContainer: document.getElementById(`dots-${proj.id}`),
+                isDragging: false,
+                startX: 0,
+                currentTranslate: 0,
+                prevTranslate: 0,
+                animationID: 0
+            };
+
+            setupSwipe(proj.id);
+        });
+
+        function updateCarouselUI(id) {
+            const state = carousels[id];
+            state.track.style.transform = `translateX(-${state.currentIndex * 100}%)`;
+            state.prevTranslate = -(state.currentIndex * state.track.offsetWidth);
+            
+            const dots = state.dotsContainer.children;
+            Array.from(dots).forEach((dot, index) => {
+                if (index === state.currentIndex) {
+                    dot.className = "w-2.5 h-2.5 rounded-full transition-all duration-300 bg-teal-400 scale-125";
+                } else {
+                    dot.className = "w-2.5 h-2.5 rounded-full transition-all duration-300 bg-white/50 hover:bg-white/80";
+                }
+            });
+
+            const videos = state.track.querySelectorAll('video');
+            videos.forEach(vid => vid.pause());
+        }
+
+        function moveCarousel(id, direction) {
+            const state = carousels[id];
+            let newIndex = state.currentIndex + direction;
+            if (newIndex < 0) newIndex = 0;
+            if (newIndex > state.maxIndex) newIndex = state.maxIndex;
+            
+            if (newIndex !== state.currentIndex) {
+                state.currentIndex = newIndex;
+                updateCarouselUI(id);
+            }
+        }
+
+        function goToSlide(id, index) {
+            carousels[id].currentIndex = index;
+            updateCarouselUI(id);
+        }
+
+        function setupSwipe(id) {
+            const state = carousels[id];
+            const track = state.track;
+            
+            track.addEventListener('touchstart', touchStart(id), { passive: true });
+            track.addEventListener('touchend', touchEnd(id));
+            track.addEventListener('touchmove', touchMove(id), { passive: false });
+
+            track.addEventListener('mousedown', touchStart(id));
+            track.addEventListener('mouseup', touchEnd(id));
+            track.addEventListener('mouseleave', touchEnd(id));
+            track.addEventListener('mousemove', touchMove(id));
+        }
+
+        function getPositionX(event) {
+            return event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
+        }
+
+        function touchStart(id) {
+            return function(event) {
+                if (event.target.tagName.toLowerCase() === 'video' && event.type.includes('mouse')) return;
+
+                const state = carousels[id];
+                state.isDragging = true;
+                state.startX = getPositionX(event);
+                state.track.style.transition = 'none';
+                cancelAnimationFrame(state.animationID);
+            }
+        }
+
+        function touchMove(id) {
+            return function(event) {
+                const state = carousels[id];
+                if (!state.isDragging) return;
+                
+                if (event.type.includes('touch')) {
+                    const diffX = Math.abs(getPositionX(event) - state.startX);
+                    if (diffX > 10) {
+                        event.preventDefault();
+                    }
+                }
+
+                const currentPosition = getPositionX(event);
+                const diff = currentPosition - state.startX;
+                const trackWidth = state.track.offsetWidth;
+                state.currentTranslate = state.prevTranslate + diff;
+                
+                if (state.currentTranslate > 0) {
+                     state.currentTranslate = diff * 0.2;
+                } else if (state.currentTranslate < -(state.maxIndex * trackWidth)) {
+                     const overage = state.currentTranslate + (state.maxIndex * trackWidth);
+                     state.currentTranslate = -(state.maxIndex * trackWidth) + (overage * 0.2);
+                }
+
+                state.animationID = requestAnimationFrame(() => {
+                    state.track.style.transform = `translateX(${state.currentTranslate}px)`;
+                });
+            }
+        }
+
+        function touchEnd(id) {
+            return function(event) {
+                const state = carousels[id];
+                if (!state.isDragging) return;
+                
+                state.isDragging = false;
+                cancelAnimationFrame(state.animationID);
+                
+                const movedBy = state.currentTranslate - state.prevTranslate;
+                state.track.style.transition = 'transform 0.3s ease-out';
+
+                if (movedBy < -50 && state.currentIndex < state.maxIndex) {
+                    state.currentIndex += 1;
+                } else if (movedBy > 50 && state.currentIndex > 0) {
+                    state.currentIndex -= 1;
+                }
+
+                updateCarouselUI(id);
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            Object.keys(carousels).forEach(id => {
+                const state = carousels[id];
+                state.track.style.transition = 'none';
+                updateCarouselUI(id);
+                void state.track.offsetWidth;
+                state.track.style.transition = 'transform 0.3s ease-out';
+            });
+        });
+
+    </script>
+</body>
+</html>
